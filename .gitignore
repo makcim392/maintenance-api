@@ -50,3 +50,5 @@ app
 # Other
 .pre-commit-config.yaml
 setup_ssh.sh
+
+.envrc

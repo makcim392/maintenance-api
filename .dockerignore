@@ -1,3 +1,13 @@
 .git
 .gitignore
 README.md
+
+# Ignore the vendor directory
+/vendor
+
+# Ignore build artifacts
+/tmp
+
+
+# Ensure .air.toml is not ignored
+!.air.toml

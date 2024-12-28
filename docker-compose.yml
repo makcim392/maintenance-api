@@ -1,29 +1,48 @@
-# docker-compose.yml
 version: '3.8'
+
 services:
   app:
     build: .
+    image: sword-app:latest  # Specify the image and tag here
+    container_name: sword-app  # Container name without the tag
     ports:
       - "8080:8080"
     environment:
-      - DB_HOST=mysql
-      - DB_USER=user
-      - DB_PASSWORD=password
-      - DB_NAME=tasks_db
+      DB_HOST: mysql
+      DB_USER: user
+      DB_PASSWORD: password
+      DB_NAME: tasks_db
     depends_on:
       - mysql
+    networks:
+      - sword_net
 
+    # IMPORTANT: This line mounts your local project folder into /app in the container,
+    # letting Air see file changes in real-time.
+    volumes:
+      - ./:/app
+
+    # Either specify the command here or rely on the Dockerfile’s default CMD
+    command: ["air"]
+
+  # MySQL service
   mysql:
     image: mysql:8
+    container_name: sword_mysql
     environment:
-      - MYSQL_DATABASE=tasks_db
-      - MYSQL_USER=user
-      - MYSQL_PASSWORD=password
-      - MYSQL_ROOT_PASSWORD=rootpassword
+      MYSQL_DATABASE: tasks_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: rootpassword
     ports:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+    networks:
+      - sword_net
 
 volumes:
   mysql_data:
+
+networks:
+  sword_net:
