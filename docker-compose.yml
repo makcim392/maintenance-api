@@ -3,43 +3,45 @@ version: '3.8'
 services:
   app:
     build: .
-    image: sword-app:latest  # Specify the image and tag here
-    container_name: sword-app  # Container name without the tag
+    image: "${APP_IMAGE:-sword-app}:latest"  # Use environment variable with default
+    container_name: "${APP_CONTAINER_NAME:-sword-app}"  # Default container name
     ports:
-      - "8080:8080"
+      - "${APP_PORT_HOST:-8080}:${APP_PORT_CONTAINER:-8080}"
     environment:
-      DB_HOST: mysql
-      DB_USER: user
-      DB_PASSWORD: password
-      DB_NAME: tasks_db
+      DB_HOST: "${DB_HOST:-mysql}"
+      DB_USER: "${DB_USER:-user}"  # Default to 'user' if not specified
+      DB_PASSWORD: "${DB_PASSWORD:-password}"  # Default to 'password' if not specified
+      DB_NAME: "${DB_NAME:-tasks_db}"  # Default to 'tasks_db' if not specified
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     networks:
       - sword_net
-
-    # IMPORTANT: This line mounts your local project folder into /app in the container,
-    # letting Air see file changes in real-time.
     volumes:
       - ./:/app
+    command: ["air"]  # Command to run the application
 
-    # Either specify the command here or rely on the Dockerfile’s default CMD
-    command: ["air"]
-
-  # MySQL service
   mysql:
     image: mysql:8
-    container_name: sword_mysql
+    container_name: "${MYSQL_CONTAINER_NAME:-sword_mysql}"
     environment:
-      MYSQL_DATABASE: tasks_db
-      MYSQL_USER: user
-      MYSQL_PASSWORD: password
-      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: "${MYSQL_DATABASE:-tasks_db}"  # Default to 'tasks_db' if not specified
+      MYSQL_USER: "${MYSQL_USER:-user}"  # Default to 'user' if not specified
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD:-password}"  # Default to 'password' if not specified
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:-your_secure_root_password}"  # Default secure password
     ports:
-      - "3306:3306"
+      - "${MYSQL_PORT_HOST:-3307}:${MYSQL_PORT_CONTAINER:-3306}"
     volumes:
       - mysql_data:/var/lib/mysql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql  # Ensure init.sql exists
     networks:
       - sword_net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
 volumes:
   mysql_data:

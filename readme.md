@@ -10,6 +10,10 @@ In order to build the image, and considering docker build is getting deprecated,
 
 `docker buildx build --load -t sword_app:v1 . `
 
+# Database access
+
+A default.env file is provided in order to set the environment variables for the database connection. You can copy it to .env and modify the values as needed.
+
 # Developing
 
 Local Development (Hot-Reloading)

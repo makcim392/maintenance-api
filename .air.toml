@@ -19,6 +19,10 @@ tmp_dir = "tmp"
   # Directories to exclude from watching
   exclude_dir = ["assets", "tmp", "vendor"]
 
+  # Enable polling to detect file changes
+  poll = true
+  interval = 1000  # Polling interval in milliseconds
+
 [log]
   # Enable timestamp in logs
   time = true
