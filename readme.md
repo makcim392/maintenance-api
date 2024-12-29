@@ -16,7 +16,7 @@ A default.env file is provided in order to set the environment variables for the
 
 # Developing
 
-Local Development (Hot-Reloading)
+## Local Development (Hot-Reloading)
 
 When actively coding, you’ll likely want immediate feedback on code changes without rebuilding the Docker image each time. To achieve this:
 
@@ -41,3 +41,11 @@ services:
     command: ["air"] (or similar) runs your hot-reload tool, which watches for changes and re-compiles the Go code automatically.
 
 ```
+
+## Make
+
+A Makefile is provided to simplify common tasks, included linting and running tests as well as showing test coverage.
+
+# Future Improvements
+
+API Documentation: Implement OpenAPI/Swagger documentation to provide interactive API exploration and make the endpoints more discoverable. This would include request/response schemas, examples, and authentication requirements, enabling faster integration for other developers.

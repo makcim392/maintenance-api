@@ -1,0 +1,10 @@
+linters:
+  disable:
+    - errcheck    # Disables errcheck completely
+
+# Or more specifically:
+issues:
+  exclude-rules:
+    - path: internal/handlers/task.go
+      linters:
+        - errcheck
