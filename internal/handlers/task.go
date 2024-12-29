@@ -3,10 +3,11 @@ package handlers
 import (
 	"database/sql"
 	"encoding/json"
-	"github.com/google/uuid"
-	"github.com/makcim392/swordhealth-interviewer/internal/models"
 	"net/http"
 	"strconv"
+
+	"github.com/google/uuid"
+	"github.com/makcim392/swordhealth-interviewer/internal/models"
 )
 
 type TaskHandler struct {
