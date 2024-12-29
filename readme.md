@@ -45,3 +45,7 @@ services:
 ## Make
 
 A Makefile is provided to simplify common tasks, included linting and running tests as well as showing test coverage.
+
+# Future Improvements
+
+API Documentation: Implement OpenAPI/Swagger documentation to provide interactive API exploration and make the endpoints more discoverable. This would include request/response schemas, examples, and authentication requirements, enabling faster integration for other developers.

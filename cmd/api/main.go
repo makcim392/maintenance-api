@@ -12,7 +12,7 @@ import (
 
 func main() {
 	// Connect to database
-	db, err := sql.Open("mysql", "user:password@tcp(localhost:3307)/tasks_db")
+	db, err := sql.Open("mysql", "user:password@tcp(mysql:3306)/tasks_db")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -27,10 +27,9 @@ func main() {
 	// Register routes
 	router.HandleFunc("/tasks", taskHandler.CreateTask).Methods("POST")
 
-	// Dev server
-	devServer := ":8081"
+	port := ":8080"
 
 	// Start server
-	log.Printf("Server starting on %v", devServer)
-	log.Fatal(http.ListenAndServe(devServer, router))
+	log.Printf("Server starting on %v", port)
+	log.Fatal(http.ListenAndServe(port, router))
 }
