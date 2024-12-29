@@ -3,6 +3,7 @@ package handlers
 import (
 	"database/sql"
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -32,6 +33,12 @@ func (h *TaskHandler) CreateTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Validate PerformedAt is not zero
+	if task.PerformedAt.IsZero() {
+		http.Error(w, "PerformedAt is required", http.StatusBadRequest)
+		return
+	}
+
 	// For now, let's hardcode technician ID (you'll get this from auth later)
 	task.TechnicianID = 1
 
@@ -49,5 +56,8 @@ func (h *TaskHandler) CreateTask(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(task)
+	err = json.NewEncoder(w).Encode(task)
+	if err != nil {
+		log.Printf("Error encoding task: %v", err)
+	}
 }

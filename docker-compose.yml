@@ -1,37 +1,48 @@
 services:
   app:
-    build: .
-    image: "${APP_IMAGE:-sword-app}:latest"  # Use environment variable with default
-    container_name: "${APP_CONTAINER_NAME:-sword-app}"  # Default container name
+    build:
+      context: .
+      target: dev
+    image: "${APP_IMAGE:-sword-app}:latest"
+    container_name: "${APP_CONTAINER_NAME:-sword-app}"
     ports:
       - "${APP_PORT_HOST:-8080}:${APP_PORT_CONTAINER:-8080}"
     environment:
       DB_HOST: "${DB_HOST:-mysql}"
-      DB_USER: "${DB_USER:-user}"  # Default to 'user' if not specified
-      DB_PASSWORD: "${DB_PASSWORD:-password}"  # Default to 'password' if not specified
-      DB_NAME: "${DB_NAME:-tasks_db}"  # Default to 'tasks_db' if not specified
+      DB_USER: "${DB_USER:-user}"
+      DB_PASSWORD: "${DB_PASSWORD:-password}"
+      DB_NAME: "${DB_NAME:-tasks_db}"
+      # Add Air-specific environment variables
+      GOFLAGS: "-buildvcs=false"
+      AIR_FORCE_POLL: "true"
+      AIR_POLL_INTERVAL: "500"
     depends_on:
       mysql:
         condition: service_healthy
     networks:
       - sword_net
     volumes:
-      - ./:/app
-    command: ["air"]  # Command to run the application
+      - .:/app
+      - go-mod-cache:/go/pkg/mod
+      - build-cache:/app/tmp
+    tty: true
+    stdin_open: true
+    # Add specific Air config
+    command: ["air", "-c", ".air.toml"]
 
   mysql:
     image: mysql:8
     container_name: "${MYSQL_CONTAINER_NAME:-sword_mysql}"
     environment:
-      MYSQL_DATABASE: "${MYSQL_DATABASE:-tasks_db}"  # Default to 'tasks_db' if not specified
-      MYSQL_USER: "${MYSQL_USER:-user}"  # Default to 'user' if not specified
-      MYSQL_PASSWORD: "${MYSQL_PASSWORD:-password}"  # Default to 'password' if not specified
-      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:-your_secure_root_password}"  # Default secure password
+      MYSQL_DATABASE: "${MYSQL_DATABASE:-tasks_db}"
+      MYSQL_USER: "${MYSQL_USER:-user}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD:-password}"
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:-your_secure_root_password}"
     ports:
       - "${MYSQL_PORT_HOST:-3307}:${MYSQL_PORT_CONTAINER:-3306}"
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql  # Ensure init.sql exists
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - sword_net
     healthcheck:
@@ -43,6 +54,8 @@ services:
 
 volumes:
   mysql_data:
+  go-mod-cache:
+  build-cache:
 
 networks:
   sword_net:

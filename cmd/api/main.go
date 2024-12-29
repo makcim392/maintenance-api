@@ -26,10 +26,11 @@ func main() {
 
 	// Register routes
 	router.HandleFunc("/tasks", taskHandler.CreateTask).Methods("POST")
+	router.HandleFunc("/test", handlers.TestHandler).Methods("GET")
 
 	port := ":8080"
 
 	// Start server
-	log.Printf("Server starting on %v", port)
+	log.Printf("Server starting on port %v", port)
 	log.Fatal(http.ListenAndServe(port, router))
 }
