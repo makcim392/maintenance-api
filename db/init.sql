@@ -10,15 +10,15 @@ CREATE TABLE IF NOT EXISTS users (
 
 -- Tasks table
 CREATE TABLE IF NOT EXISTS tasks (
-    id INT PRIMARY KEY AUTO_INCREMENT,
+    id VARCHAR(255) PRIMARY KEY,
     summary TEXT CHECK (CHAR_LENGTH(summary) <= 2500),
-    performed_date TIMESTAMP NOT NULL,
+    performed_at TIMESTAMP NOT NULL,
     technician_id INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (technician_id) REFERENCES users(id),
     INDEX idx_technician (technician_id),
-    INDEX idx_performed_date (performed_date)
+    INDEX idx_performed_date (performed_at)
 );
 
 -- Insert test data only if the users table is empty
