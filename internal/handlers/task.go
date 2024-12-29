@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"net/http"
-	"strconv"
 
 	"github.com/google/uuid"
 	"github.com/makcim392/swordhealth-interviewer/internal/models"
@@ -36,26 +35,19 @@ func (h *TaskHandler) CreateTask(w http.ResponseWriter, r *http.Request) {
 	// For now, let's hardcode technician ID (you'll get this from auth later)
 	task.TechnicianID = 1
 
-	taskID := uuid.New().String()
+	task.ID = uuid.New().String()
 
 	// Insert into database
 	query := `
         INSERT INTO tasks (id, technician_id, summary, performed_at)
         VALUES (?, ?, ?, ?)
     `
-	result, err := h.db.Exec(query, taskID, task.TechnicianID, task.Summary, task.PerformedAt)
+	_, err := h.db.Exec(query, task.ID, task.TechnicianID, task.Summary, task.PerformedAt)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	id, err := result.LastInsertId()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	task.ID = strconv.FormatInt(id, 10)
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(task)
 }
