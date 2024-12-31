@@ -8,6 +8,14 @@ import (
 	"github.com/makcim392/swordhealth-interviewer/internal/auth"
 )
 
+// Define custom types for context keys
+type contextKey string
+
+const (
+	userIDContextKey contextKey = "userID"
+	roleContextKey   contextKey = "role"
+)
+
 func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization")
@@ -28,9 +36,9 @@ func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		// Add claims to request context
-		ctx := context.WithValue(r.Context(), "userID", claims.UserID)
-		ctx = context.WithValue(ctx, "role", claims.Role)
+		// Add claims to request context using the custom key types
+		ctx := context.WithValue(r.Context(), userIDContextKey, claims.UserID)
+		ctx = context.WithValue(ctx, roleContextKey, claims.Role)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	}
 }

@@ -4,10 +4,11 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"net/http"
+
 	"github.com/makcim392/swordhealth-interviewer/internal/auth"
 	"github.com/makcim392/swordhealth-interviewer/internal/models"
 	"golang.org/x/crypto/bcrypt"
-	"net/http"
 )
 
 type AuthHandler struct {
