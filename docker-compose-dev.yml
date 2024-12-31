@@ -1,0 +1,28 @@
+services:
+  mysql:
+    image: mysql:8
+    container_name: "${MYSQL_CONTAINER_NAME:-sword_mysql}"
+    environment:
+      MYSQL_DATABASE: "${MYSQL_DATABASE:-tasks_db}"
+      MYSQL_USER: "${MYSQL_USER:-user}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD:-password}"
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:-your_secure_root_password}"
+    ports:
+      - "${MYSQL_PORT_HOST:-3307}:${MYSQL_PORT_CONTAINER:-3306}"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - sword_net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  mysql_data:
+
+networks:
+  sword_net:

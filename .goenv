@@ -1,2 +1,8 @@
 # .env file
 GOPROXY=https://proxy.golang.org,direct
+
+# get dependencies
+GOPROXY=direct go mod tidy
+
+# dev sin app en container
+docker-compose -f docker-compose.dev.yml up
