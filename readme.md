@@ -48,4 +48,13 @@ A Makefile is provided to simplify common tasks, included linting and running te
 
 # Future Improvements
 
-API Documentation: Implement OpenAPI/Swagger documentation to provide interactive API exploration and make the endpoints more discoverable. This would include request/response schemas, examples, and authentication requirements, enabling faster integration for other developers.
+## API Documentation 
+Implement OpenAPI/Swagger documentation to provide interactive API exploration and make the endpoints more discoverable. 
+This would include request/response schemas, examples, and authentication requirements, 
+enabling faster integration for other developers.
+
+## Microservices partitioning
+The application could be further divided into microservices, for example, separating the user management functionality
+(login and registration) from the rest of the application.
+
+
