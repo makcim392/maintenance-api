@@ -3,10 +3,11 @@ package handlers
 import (
 	"database/sql"
 	"encoding/json"
-	"github.com/gorilla/mux"
-	"github.com/makcim392/swordhealth-interviewer/internal/middleware"
 	"log"
 	"net/http"
+
+	"github.com/gorilla/mux"
+	"github.com/makcim392/swordhealth-interviewer/internal/middleware"
 
 	"github.com/google/uuid"
 	"github.com/makcim392/swordhealth-interviewer/internal/models"
