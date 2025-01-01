@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -14,25 +15,53 @@ import (
 )
 
 func main() {
-	// Load .env file
-	err := godotenv.Load()
+	// Load default.env for base configuration
+	err := godotenv.Load("default.env")
 	if err != nil {
-		log.Fatalf("Error loading .env file: %v", err)
+		log.Fatalf("Error loading default.env file: %v", err)
+	}
+
+	// Load .env to override default.env
+	err = godotenv.Overload(".env")
+	if err != nil {
+		log.Printf("No .env file found or failed to load it: %v", err)
+	}
+
+	// Get application environment
+	appEnv := os.Getenv("APP_ENV")
+	if appEnv == "" {
+		appEnv = "prod" // Default to production if not set
 	}
 
 	// Get database connection details from environment variables
+	dbHost := os.Getenv("DB_HOST")
+	dbPort := os.Getenv("MYSQL_PORT_HOST")
+	if appEnv == "dev" {
+		dbHost = os.Getenv("DEV_DB_HOST")
+		dbPort = os.Getenv("DEV_DB_PORT")
+	}
+
 	dbUser := os.Getenv("DB_USER")
 	dbPassword := os.Getenv("DB_PASSWORD")
-	dbHost := os.Getenv("DB_HOST")
 	dbName := os.Getenv("DB_NAME")
 
-	// Connect to database
-	dsn := dbUser + ":" + dbPassword + "@tcp(" + dbHost + ":3306)/" + dbName
+	// Default to local port for debugging if not set
+	if dbPort == "" {
+		dbPort = "3307"
+	}
+
+	// Construct DSN and connect to the database
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", dbUser, dbPassword, dbHost, dbPort, dbName)
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error connecting to database: %v", err)
 	}
 	defer db.Close()
+
+	// Test database connection
+	if err := db.Ping(); err != nil {
+		log.Fatalf("Error pinging database: %v", err)
+	}
 
 	// Create router
 	router := mux.NewRouter()
@@ -45,7 +74,7 @@ func main() {
 	router.HandleFunc("/login", authHandler.Login).Methods("POST")
 	router.HandleFunc("/register", authHandler.Register).Methods("POST")
 
-	// Register routes
+	// Task routes
 	router.HandleFunc("/tasks", middleware.AuthMiddleware(taskHandler.CreateTask)).Methods("POST")
 	router.HandleFunc("/tasks/update", middleware.AuthMiddleware(taskHandler.UpdateTask)).Methods("PUT")
 	router.HandleFunc("/test", handlers.TestHandler).Methods("GET")

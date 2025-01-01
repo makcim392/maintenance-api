@@ -46,6 +46,14 @@ services:
 
 A Makefile is provided to simplify common tasks, included linting and running tests as well as showing test coverage.
 
+## Docker-Compose for development
+
+In order to run the app locally and only run the database in a container, you can use the following docker-compose.yml file:
+
+```docker
+docker-compose -f docker-compose-dev.yml up
+```
+
 # Future Improvements
 
 ## API Documentation 
