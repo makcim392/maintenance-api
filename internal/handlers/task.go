@@ -3,6 +3,7 @@ package handlers
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"log"
 	"net/http"
 
@@ -42,10 +43,27 @@ func (h *TaskHandler) CreateTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// For now, let's hardcode technician ID (you'll get this from auth later)
-	task.TechnicianID = 1
-
 	task.ID = uuid.New().String()
+
+	// Get user information from context using your existing context keys
+	userID, ok := r.Context().Value(middleware.UserIDContextKey).(int)
+	if !ok {
+		http.Error(w, "Unable to get user ID from context", http.StatusInternalServerError)
+		return
+	}
+
+	role, ok := r.Context().Value(middleware.RoleContextKey).(string)
+	if !ok {
+		http.Error(w, "Unable to get role from context", http.StatusInternalServerError)
+		return
+	}
+
+	if role != string(models.RoleTechnician) {
+		http.Error(w, "Unauthorized to create task", http.StatusForbidden)
+		return
+	}
+
+	task.TechnicianID = int64(userID)
 
 	// Insert into database
 	query := `
@@ -66,10 +84,6 @@ func (h *TaskHandler) CreateTask(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *TaskHandler) UpdateTask(w http.ResponseWriter, r *http.Request) {
-
-	// todo remove
-	log.Printf("UserID from context: %v, Role: %v", r.Context().Value(middleware.UserIDContextKey), r.Context().Value(middleware.RoleContextKey))
-
 	value := r.Context().Value(middleware.UserIDContextKey)
 	log.Printf("Value in context: %v, Type: %T", value, value)
 
@@ -89,17 +103,19 @@ func (h *TaskHandler) UpdateTask(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	taskID := vars["id"]
 
-	// todo remove
-	log.Printf("Extracted taskID: %s", taskID)
-
 	// First, check if task exists and get current technician ID
 	var currentTechID int
 	err := h.db.QueryRow("SELECT technician_id FROM tasks WHERE id = ?", taskID).Scan(&currentTechID)
-	if err == sql.ErrNoRows {
+	if errors.Is(err, sql.ErrNoRows) {
 		http.Error(w, "Task not found", http.StatusNotFound)
 		return
 	} else if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if userID != currentTechID {
+		http.Error(w, "Unauthorized to modify this task", http.StatusForbidden)
 		return
 	}
 
@@ -121,9 +137,9 @@ func (h *TaskHandler) UpdateTask(w http.ResponseWriter, r *http.Request) {
 	}
 
 	query := `
-        UPDATE tasks 
-        SET summary = ?, performed_at = ?
-        WHERE id = ? AND (? = ? OR technician_id = ?)
+        UPDATE tasks SET summary = ?, performed_at = ?
+		WHERE 
+		id = ? AND technician_id = ?
     `
 	result, err := h.db.Exec(query, task.Summary, task.PerformedAt, taskID, role, models.RoleManager, userID)
 	if err != nil {
