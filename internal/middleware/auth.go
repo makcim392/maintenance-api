@@ -8,9 +8,6 @@ import (
 	"github.com/makcim392/swordhealth-interviewer/internal/auth"
 )
 
-// Define custom types for context keys
-type contextKey string
-
 const (
 	userIDContextKey contextKey = "userID"
 	roleContextKey   contextKey = "role"
