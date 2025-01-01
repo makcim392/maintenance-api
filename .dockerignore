@@ -11,3 +11,5 @@ README.md
 
 # Ensure .air.toml is not ignored
 !.air.toml
+
+coverage.out

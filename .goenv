@@ -5,4 +5,7 @@ GOPROXY=https://proxy.golang.org,direct
 GOPROXY=direct go mod tidy
 
 # dev sin app en container
-docker-compose -f docker-compose.dev.yml up
+docker-compose -f docker-compose-dev.yml up
+
+# rebuild con dev
+docker-compose -f docker-compose-dev.yml build

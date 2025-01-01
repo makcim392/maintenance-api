@@ -46,6 +46,38 @@ services:
 
 A Makefile is provided to simplify common tasks, included linting and running tests as well as showing test coverage.
 
+## Docker-Compose for development
+
+In order to run the app locally and only run the database in a container, you can use the following docker-compose.yml file:
+
+```docker
+docker-compose -f docker-compose-dev.yml up
+```
+
+# Tests
+
+## Integration
+
+### Running
+
+In order to run containerized integration tests, you can use the following command:
+
+```bash
+docker-compose -f tests/docker-compose.test.yml up -d
+```
+
+and then run the tests with:
+
+```bash
+go test ./tests/integration/... -v 
+```
+
+### Removing integration containers
+
+```bash
+docker-compose -f tests/docker-compose.test.yml down -v
+```
+
 # Future Improvements
 
 ## API Documentation 

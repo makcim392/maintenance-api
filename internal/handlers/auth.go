@@ -22,8 +22,9 @@ func NewAuthHandler(db *sql.DB) *AuthHandler {
 }
 
 type LoginRequest struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Username string      `json:"username"`
+	Password string      `json:"password"`
+	Role     models.Role `json:"role"`
 }
 
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
@@ -73,6 +74,12 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Validate role
+	if req.Role != models.RoleTechnician && req.Role != models.RoleManager {
+		http.Error(w, "Invalid role. Must be either 'technician' or 'manager'", http.StatusBadRequest)
+		return
+	}
+
 	// Hash password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
@@ -85,7 +92,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
         INSERT INTO users (username, password, role)
         VALUES (?, ?, ?)
     `
-	result, err := h.db.Exec(query, req.Username, hashedPassword, models.RoleTechnician)
+	result, err := h.db.Exec(query, req.Username, hashedPassword, req.Role)
 	if err != nil {
 		http.Error(w, "Error creating user", http.StatusInternalServerError)
 		return
@@ -96,6 +103,6 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"id":       id,
 		"username": req.Username,
-		"role":     models.RoleTechnician,
+		"role":     req.Role,
 	})
 }
