@@ -12,6 +12,7 @@ services:
       DB_USER: "${DB_USER:-user}"
       DB_PASSWORD: "${DB_PASSWORD:-password}"
       DB_NAME: "${DB_NAME:-tasks_db}"
+      MYSQL_PORT_CONTAINER: "3306"
       # Add Air-specific environment variables
       GOFLAGS: "-buildvcs=false"
       AIR_FORCE_POLL: "true"

@@ -1,5 +1,5 @@
 # Development stage
-FROM golang:1.21-alpine AS dev
+FROM golang:1.22-alpine AS dev
 
 WORKDIR /app
 
@@ -22,4 +22,4 @@ ENV PATH="/go/bin:${PATH}"
 ENV GOFLAGS="-buildvcs=false -a -gcflags='all=-N -l'"
 
 EXPOSE 8080
-CMD ["air"]
+CMD ["air", "-c", ".air.toml"]

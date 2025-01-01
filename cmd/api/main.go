@@ -37,7 +37,8 @@ func main() {
 
 	// Get database connection details from environment variables
 	dbHost := os.Getenv("DB_HOST")
-	dbPort := os.Getenv("MYSQL_PORT_HOST")
+
+	dbPort := "3306" // Default to container port
 	if appEnv == "dev" {
 		dbHost = os.Getenv("DEV_DB_HOST")
 		dbPort = os.Getenv("DEV_DB_PORT")
