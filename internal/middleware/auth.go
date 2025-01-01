@@ -13,7 +13,17 @@ const (
 	roleContextKey   contextKey = "role"
 )
 
-func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
+type AuthMiddlewareHandler struct {
+	validator auth.TokenValidator
+}
+
+func NewAuthMiddlewareHandler(validator auth.TokenValidator) *AuthMiddlewareHandler {
+	return &AuthMiddlewareHandler{
+		validator: validator,
+	}
+}
+
+func (h *AuthMiddlewareHandler) AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization")
 		if authHeader == "" {
@@ -27,13 +37,12 @@ func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		claims, err := auth.ValidateToken(bearerToken[1])
+		claims, err := h.validator.ValidateToken(bearerToken[1])
 		if err != nil {
 			http.Error(w, "Invalid token", http.StatusUnauthorized)
 			return
 		}
 
-		// Add claims to request context using the custom key types
 		ctx := context.WithValue(r.Context(), userIDContextKey, int(claims.UserID))
 		ctx = context.WithValue(ctx, roleContextKey, claims.Role)
 		next.ServeHTTP(w, r.WithContext(ctx))

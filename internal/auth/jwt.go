@@ -45,3 +45,29 @@ func ValidateToken(tokenString string) (*Claims, error) {
 
 	return claims, nil
 }
+
+// TokenValidator defines the interface for token validation
+type TokenValidator interface {
+	ValidateToken(tokenString string) (*Claims, error)
+}
+
+// JWTValidator implements TokenValidator
+type JWTValidator struct{}
+
+// ValidateToken implementation moved to JWTValidator
+func (v *JWTValidator) ValidateToken(tokenString string) (*Claims, error) {
+	claims := &Claims{}
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(t *jwt.Token) (interface{}, error) {
+		return jwtKey, nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if !token.Valid {
+		return nil, errors.New("invalid token")
+	}
+
+	return claims, nil
+}

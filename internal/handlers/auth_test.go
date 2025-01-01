@@ -4,13 +4,14 @@ import (
 	"bytes"
 	"database/sql"
 	"encoding/json"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/makcim392/swordhealth-interviewer/internal/models"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/crypto/bcrypt"
-	"net/http"
-	"net/http/httptest"
-	"testing"
 )
 
 func TestLogin(t *testing.T) {

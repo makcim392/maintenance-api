@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/makcim392/swordhealth-interviewer/internal/auth"
+
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
@@ -70,13 +72,16 @@ func main() {
 	taskHandler := handlers.NewTaskHandler(db)
 	authHandler := handlers.NewAuthHandler(db)
 
+	validator := &auth.JWTValidator{}
+	authMiddleware := middleware.NewAuthMiddlewareHandler(validator)
+
 	// Auth routes
 	router.HandleFunc("/login", authHandler.Login).Methods("POST")
 	router.HandleFunc("/register", authHandler.Register).Methods("POST")
 
 	// Task routes
-	router.HandleFunc("/tasks", middleware.AuthMiddleware(taskHandler.CreateTask)).Methods("POST")
-	router.HandleFunc("/tasks/{id}", middleware.AuthMiddleware(taskHandler.UpdateTask)).Methods("PUT")
+	router.HandleFunc("/tasks", authMiddleware.AuthMiddleware(taskHandler.CreateTask)).Methods("POST")
+	router.HandleFunc("/tasks/{id}", authMiddleware.AuthMiddleware(taskHandler.UpdateTask)).Methods("PUT")
 	router.HandleFunc("/test", handlers.TestHandler).Methods("GET")
 
 	// Get server port from environment variables
