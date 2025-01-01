@@ -34,7 +34,7 @@ func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		}
 
 		// Add claims to request context using the custom key types
-		ctx := context.WithValue(r.Context(), userIDContextKey, claims.UserID)
+		ctx := context.WithValue(r.Context(), userIDContextKey, int(claims.UserID))
 		ctx = context.WithValue(ctx, roleContextKey, claims.Role)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	}

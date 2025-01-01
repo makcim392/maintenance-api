@@ -66,6 +66,13 @@ func (h *TaskHandler) CreateTask(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *TaskHandler) UpdateTask(w http.ResponseWriter, r *http.Request) {
+
+	// todo remove
+	log.Printf("UserID from context: %v, Role: %v", r.Context().Value(middleware.UserIDContextKey), r.Context().Value(middleware.RoleContextKey))
+
+	value := r.Context().Value(middleware.UserIDContextKey)
+	log.Printf("Value in context: %v, Type: %T", value, value)
+
 	// Get user information from context using your existing context keys
 	userID, ok := r.Context().Value(middleware.UserIDContextKey).(int)
 	if !ok {
@@ -81,6 +88,9 @@ func (h *TaskHandler) UpdateTask(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	taskID := vars["id"]
+
+	// todo remove
+	log.Printf("Extracted taskID: %s", taskID)
 
 	// First, check if task exists and get current technician ID
 	var currentTechID int
