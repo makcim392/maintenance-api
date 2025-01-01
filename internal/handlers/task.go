@@ -141,7 +141,7 @@ func (h *TaskHandler) UpdateTask(w http.ResponseWriter, r *http.Request) {
 		WHERE 
 		id = ? AND technician_id = ?
     `
-	result, err := h.db.Exec(query, task.Summary, task.PerformedAt, taskID, role, models.RoleManager, userID)
+	result, err := h.db.Exec(query, task.Summary, task.PerformedAt, taskID, userID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
