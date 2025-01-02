@@ -1,5 +1,73 @@
 # Description
 
+This application manages maintenance tasks performed during a working day. It provides a REST API for two types of users:
+- **Technicians**: Can create, view, and update their own tasks
+- **Managers**: Can view all tasks and delete them
+
+Each task contains:
+- A summary (max 2500 characters)
+- A date when it was performed (performed_at)
+- The technician who performed it
+
+## API Endpoints
+
+### Authentication
+- **POST /register**
+    - Registers a new user
+    - Request body:
+      ```json
+      {
+        "username": "string",
+        "password": "string",
+        "role": "technician|manager"
+      }
+      ```
+
+- **POST /login**
+    - Authenticates a user and returns a JWT token
+    - Request body:
+      ```json
+      {
+        "username": "string",
+        "password": "string"
+      }
+      ```
+
+### Tasks
+- **POST /tasks**
+    - Creates a new task
+    - Requires authentication (Bearer token)
+    - Request body:
+      ```json
+      {
+        "summary": "Task description (max 2500 chars)",
+        "performed_at": "2024-12-29T10:30:00Z"
+      }
+      ```
+
+- **GET /tasks**
+    - Lists tasks
+    - Requires authentication (Bearer token)
+    - Technicians: Returns only their tasks
+    - Managers: Returns all tasks
+
+- **PUT /tasks/{task_id}**
+    - Updates an existing task
+    - Requires authentication (Bearer token)
+    - Only available to the technician who created the task
+    - Request body:
+      ```json
+      {
+        "summary": "Updated task description",
+        "performed_at": "2024-12-29T10:30:00Z"
+      }
+      ```
+
+- **DELETE /tasks/{task_id}**
+    - Deletes a task
+    - Requires authentication (Bearer token)
+    - Only available to managers
+
 # Running the project
 
 1. Run `docker-compose up -d` to start the containers
@@ -38,7 +106,8 @@ A Postman collection is included in the `docs/postman` directory. To use it:
 
 # Database access
 
-A default.env file is provided in order to set the environment variables for the database connection. You can copy it to .env and modify the values as needed.
+A default.env file is provided in order to set the environment variables for the database connection. 
+You can copy it to .env and modify the values as needed.
 
 # Developing
 
