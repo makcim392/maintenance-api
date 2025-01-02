@@ -1,1 +1,2 @@
 ./internal/handlers/test.go
+./cmd/api/main.go

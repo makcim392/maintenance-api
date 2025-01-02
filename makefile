@@ -17,7 +17,7 @@ test:
 
 # Run tests with coverage and generate HTML report
 test-cover:
-	go test -coverprofile=coverage.out ./...
+	go test -coverprofile=coverage.out $$(go list ./... | grep -v /cmd/api)
 	@echo "Total Coverage:"
 	@go tool cover -func=coverage.out | grep total | awk '{print $$3}'
 

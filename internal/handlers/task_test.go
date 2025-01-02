@@ -430,3 +430,167 @@ func TestListTasks(t *testing.T) {
 		assert.Contains(t, rr.Body.String(), "Error parsing date")
 	})
 }
+
+func TestDeleteTask(t *testing.T) {
+	// Create a new mock database connection
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("Failed to create mock: %v", err)
+	}
+	defer db.Close()
+
+	handler := NewTaskHandler(db)
+
+	t.Run("successful deletion by manager", func(t *testing.T) {
+		req := httptest.NewRequest("DELETE", "/tasks/123", nil)
+
+		// Add manager context
+		ctx := context.WithValue(req.Context(), middleware.UserIDContextKey, 1)
+		ctx = context.WithValue(ctx, middleware.RoleContextKey, string(models.RoleManager))
+		req = req.WithContext(ctx)
+
+		// Add URL parameters
+		vars := map[string]string{
+			"id": "123",
+		}
+		req = mux.SetURLVars(req, vars)
+
+		rr := httptest.NewRecorder()
+
+		// Expect check for existing task
+		mock.ExpectQuery("SELECT EXISTS\\(SELECT 1 FROM tasks WHERE id = \\?\\)").
+			WithArgs("123").
+			WillReturnRows(sqlmock.NewRows([]string{"exists"}).AddRow(1))
+
+		// Expect the delete operation
+		mock.ExpectExec("DELETE FROM tasks WHERE id = ?").
+			WithArgs("123").
+			WillReturnResult(sqlmock.NewResult(0, 1))
+
+		handler.DeleteTask(rr, req)
+
+		assert.Equal(t, http.StatusOK, rr.Code)
+
+		var response map[string]string
+		err := json.Unmarshal(rr.Body.Bytes(), &response)
+		assert.NoError(t, err)
+		assert.Equal(t, "Task deleted successfully", response["message"])
+		assert.Equal(t, "123", response["id"])
+		assert.NoError(t, mock.ExpectationsWereMet())
+	})
+
+	t.Run("unauthorized role (technician)", func(t *testing.T) {
+		req := httptest.NewRequest("DELETE", "/tasks/123", nil)
+
+		// Add technician context
+		ctx := context.WithValue(req.Context(), middleware.UserIDContextKey, 1)
+		ctx = context.WithValue(ctx, middleware.RoleContextKey, string(models.RoleTechnician))
+		req = req.WithContext(ctx)
+
+		vars := map[string]string{
+			"id": "123",
+		}
+		req = mux.SetURLVars(req, vars)
+
+		rr := httptest.NewRecorder()
+
+		handler.DeleteTask(rr, req)
+
+		assert.Equal(t, http.StatusForbidden, rr.Code)
+		assert.Contains(t, rr.Body.String(), "Unauthorized to delete tasks")
+	})
+
+	t.Run("task not found", func(t *testing.T) {
+		req := httptest.NewRequest("DELETE", "/tasks/nonexistent", nil)
+
+		// Add manager context
+		ctx := context.WithValue(req.Context(), middleware.UserIDContextKey, 1)
+		ctx = context.WithValue(ctx, middleware.RoleContextKey, string(models.RoleManager))
+		req = req.WithContext(ctx)
+
+		vars := map[string]string{
+			"id": "nonexistent",
+		}
+		req = mux.SetURLVars(req, vars)
+
+		rr := httptest.NewRecorder()
+
+		mock.ExpectQuery("SELECT EXISTS\\(SELECT 1 FROM tasks WHERE id = \\?\\)").
+			WithArgs("nonexistent").
+			WillReturnRows(sqlmock.NewRows([]string{"exists"}).AddRow(0))
+
+		handler.DeleteTask(rr, req)
+
+		assert.Equal(t, http.StatusNotFound, rr.Code)
+		assert.Contains(t, rr.Body.String(), "Task not found")
+		assert.NoError(t, mock.ExpectationsWereMet())
+	})
+
+	t.Run("database error during check", func(t *testing.T) {
+		req := httptest.NewRequest("DELETE", "/tasks/123", nil)
+
+		ctx := context.WithValue(req.Context(), middleware.UserIDContextKey, 1)
+		ctx = context.WithValue(ctx, middleware.RoleContextKey, string(models.RoleManager))
+		req = req.WithContext(ctx)
+
+		vars := map[string]string{
+			"id": "123",
+		}
+		req = mux.SetURLVars(req, vars)
+
+		rr := httptest.NewRecorder()
+
+		mock.ExpectQuery("SELECT EXISTS\\(SELECT 1 FROM tasks WHERE id = \\?\\)").
+			WithArgs("123").
+			WillReturnError(sql.ErrConnDone)
+
+		handler.DeleteTask(rr, req)
+
+		assert.Equal(t, http.StatusInternalServerError, rr.Code)
+		assert.NoError(t, mock.ExpectationsWereMet())
+	})
+
+	t.Run("database error during delete", func(t *testing.T) {
+		req := httptest.NewRequest("DELETE", "/tasks/123", nil)
+
+		ctx := context.WithValue(req.Context(), middleware.UserIDContextKey, 1)
+		ctx = context.WithValue(ctx, middleware.RoleContextKey, string(models.RoleManager))
+		req = req.WithContext(ctx)
+
+		vars := map[string]string{
+			"id": "123",
+		}
+		req = mux.SetURLVars(req, vars)
+
+		rr := httptest.NewRecorder()
+
+		mock.ExpectQuery("SELECT EXISTS\\(SELECT 1 FROM tasks WHERE id = \\?\\)").
+			WithArgs("123").
+			WillReturnRows(sqlmock.NewRows([]string{"exists"}).AddRow(1))
+
+		mock.ExpectExec("DELETE FROM tasks WHERE id = ?").
+			WithArgs("123").
+			WillReturnError(sql.ErrConnDone)
+
+		handler.DeleteTask(rr, req)
+
+		assert.Equal(t, http.StatusInternalServerError, rr.Code)
+		assert.NoError(t, mock.ExpectationsWereMet())
+	})
+
+	t.Run("missing context values", func(t *testing.T) {
+		req := httptest.NewRequest("DELETE", "/tasks/123", nil)
+
+		vars := map[string]string{
+			"id": "123",
+		}
+		req = mux.SetURLVars(req, vars)
+
+		rr := httptest.NewRecorder()
+
+		handler.DeleteTask(rr, req)
+
+		assert.Equal(t, http.StatusInternalServerError, rr.Code)
+		assert.Contains(t, rr.Body.String(), "Unable to get role from context")
+	})
+}
