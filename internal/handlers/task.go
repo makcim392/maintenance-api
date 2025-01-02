@@ -6,6 +6,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/makcim392/swordhealth-interviewer/internal/middleware"
@@ -162,4 +163,103 @@ func (h *TaskHandler) UpdateTask(w http.ResponseWriter, r *http.Request) {
 		"message": "Task updated successfully",
 		"id":      taskID,
 	})
+}
+
+func (h *TaskHandler) ListTasks(w http.ResponseWriter, r *http.Request) {
+	// Get user information from context using your existing context keys
+	userID, ok := r.Context().Value(middleware.UserIDContextKey).(int)
+	if !ok {
+		http.Error(w, "Unable to get user ID from context", http.StatusInternalServerError)
+		return
+	}
+
+	role, ok := r.Context().Value(middleware.RoleContextKey).(string)
+	if !ok {
+		http.Error(w, "Unable to get role from context", http.StatusInternalServerError)
+		return
+	}
+
+	var query string
+	var args []interface{}
+
+	// Build query based on user role with DATE_FORMAT
+	if role == string(models.RoleTechnician) {
+		query = `
+            SELECT t.id, t.summary, 
+            DATE_FORMAT(t.performed_at, '%Y-%m-%d %H:%i:%s') as performed_at, 
+            t.technician_id, u.username
+            FROM tasks t
+            JOIN users u ON t.technician_id = u.id
+            WHERE t.technician_id = ?
+            ORDER BY t.performed_at DESC`
+		args = append(args, userID)
+	} else if role == string(models.RoleManager) {
+		query = `
+            SELECT t.id, t.summary, 
+            DATE_FORMAT(t.performed_at, '%Y-%m-%d %H:%i:%s') as performed_at, 
+            t.technician_id, u.username
+            FROM tasks t
+            JOIN users u ON t.technician_id = u.id
+            ORDER BY t.performed_at DESC`
+	} else {
+		http.Error(w, "Unauthorized role", http.StatusForbidden)
+		return
+	}
+
+	// Execute query
+	rows, err := h.db.Query(query, args...)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	type TaskResponse struct {
+		ID           string    `json:"id"`
+		Summary      string    `json:"summary"`
+		PerformedAt  time.Time `json:"performed_at"`
+		TechnicianID int64     `json:"technician_id"`
+		Username     string    `json:"technician_name"`
+	}
+
+	var tasks []TaskResponse
+
+	// Iterate through results
+	for rows.Next() {
+		var task TaskResponse
+		var performedAtStr string // Change to string to receive the formatted date
+
+		err := rows.Scan(
+			&task.ID,
+			&task.Summary,
+			&performedAtStr,
+			&task.TechnicianID,
+			&task.Username,
+		)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		// Parse the formatted date string
+		parsedTime, err := time.Parse("2006-01-02 15:04:05", performedAtStr)
+		if err != nil {
+			http.Error(w, "Error parsing date", http.StatusInternalServerError)
+			return
+		}
+		task.PerformedAt = parsedTime
+
+		tasks = append(tasks, task)
+	}
+
+	if err = rows.Err(); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Return response
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(tasks); err != nil {
+		log.Printf("Error encoding tasks: %v", err)
+	}
 }

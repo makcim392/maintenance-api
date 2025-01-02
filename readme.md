@@ -42,17 +42,14 @@ services:
 
 ```
 
+## Debugging
+
+In order to debug the application, change the `APP_ENV` variable in the .env file to `dev` and run 
+docker with `docker-compose up mysql`
+
 ## Make
 
 A Makefile is provided to simplify common tasks, included linting and running tests as well as showing test coverage.
-
-## Docker-Compose for development
-
-In order to run the app locally and only run the database in a container, you can use the following docker-compose.yml file:
-
-```docker
-docker-compose -f docker-compose-dev.yml up
-```
 
 # Tests
 

@@ -83,6 +83,8 @@ func main() {
 	// Task routes
 	router.HandleFunc("/tasks", authMiddleware.AuthMiddleware(taskHandler.CreateTask)).Methods("POST")
 	router.HandleFunc("/tasks/{id}", authMiddleware.AuthMiddleware(taskHandler.UpdateTask)).Methods("PUT")
+	router.HandleFunc("/tasks", authMiddleware.AuthMiddleware(taskHandler.ListTasks)).Methods("GET")
+
 	router.HandleFunc("/test", handlers.TestHandler).Methods("GET")
 
 	// Get server port from environment variables
