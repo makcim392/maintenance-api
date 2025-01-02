@@ -287,3 +287,146 @@ func TestUpdateTask(t *testing.T) {
 		assert.NoError(t, mock.ExpectationsWereMet())
 	})
 }
+
+func TestListTasks(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("Failed to create mock: %v", err)
+	}
+	defer db.Close()
+
+	handler := NewTaskHandler(db)
+	fixedTime := time.Date(2024, 12, 25, 10, 0, 0, 0, time.UTC)
+	formattedTime := fixedTime.Format("2006-01-02 15:04:05")
+
+	t.Run("successful list tasks for technician", func(t *testing.T) {
+		req := httptest.NewRequest("GET", "/tasks", nil)
+
+		// Add technician context
+		ctx := context.WithValue(req.Context(), middleware.UserIDContextKey, 1)
+		ctx = context.WithValue(ctx, middleware.RoleContextKey, string(models.RoleTechnician))
+		req = req.WithContext(ctx)
+
+		rr := httptest.NewRecorder()
+
+		// Expect query for technician's tasks only
+		rows := sqlmock.NewRows([]string{"id", "summary", "performed_at", "technician_id", "username"}).
+			AddRow("task1", "Task 1 summary", formattedTime, 1, "tech1").
+			AddRow("task2", "Task 2 summary", formattedTime, 1, "tech1")
+
+		mock.ExpectQuery("SELECT t.id, t.summary, DATE_FORMAT.*FROM tasks t.*WHERE t.technician_id = ?.*").
+			WithArgs(1).
+			WillReturnRows(rows)
+
+		handler.ListTasks(rr, req)
+
+		assert.Equal(t, http.StatusOK, rr.Code)
+
+		var tasks []map[string]interface{}
+		err := json.Unmarshal(rr.Body.Bytes(), &tasks)
+		assert.NoError(t, err)
+		assert.Len(t, tasks, 2)
+		assert.Equal(t, "task1", tasks[0]["id"])
+		assert.Equal(t, float64(1), tasks[0]["technician_id"])
+		assert.Equal(t, "tech1", tasks[0]["technician_name"])
+	})
+
+	t.Run("successful list tasks for manager", func(t *testing.T) {
+		req := httptest.NewRequest("GET", "/tasks", nil)
+
+		// Add manager context
+		ctx := context.WithValue(req.Context(), middleware.UserIDContextKey, 2)
+		ctx = context.WithValue(ctx, middleware.RoleContextKey, string(models.RoleManager))
+		req = req.WithContext(ctx)
+
+		rr := httptest.NewRecorder()
+
+		// Expect query for all tasks
+		rows := sqlmock.NewRows([]string{"id", "summary", "performed_at", "technician_id", "username"}).
+			AddRow("task1", "Task 1 summary", formattedTime, 1, "tech1").
+			AddRow("task2", "Task 2 summary", formattedTime, 3, "tech2")
+
+		mock.ExpectQuery("SELECT t.id, t.summary, DATE_FORMAT.*FROM tasks t.*ORDER BY t.performed_at DESC").
+			WillReturnRows(rows)
+
+		handler.ListTasks(rr, req)
+
+		assert.Equal(t, http.StatusOK, rr.Code)
+
+		var tasks []map[string]interface{}
+		err := json.Unmarshal(rr.Body.Bytes(), &tasks)
+		assert.NoError(t, err)
+		assert.Len(t, tasks, 2)
+		// Verify tasks from different technicians are included
+		assert.Equal(t, float64(1), tasks[0]["technician_id"])
+		assert.Equal(t, float64(3), tasks[1]["technician_id"])
+	})
+
+	t.Run("unauthorized role", func(t *testing.T) {
+		req := httptest.NewRequest("GET", "/tasks", nil)
+
+		// Add invalid role context
+		ctx := context.WithValue(req.Context(), middleware.UserIDContextKey, 1)
+		ctx = context.WithValue(ctx, middleware.RoleContextKey, "invalid_role")
+		req = req.WithContext(ctx)
+
+		rr := httptest.NewRecorder()
+
+		handler.ListTasks(rr, req)
+
+		assert.Equal(t, http.StatusForbidden, rr.Code)
+		assert.Contains(t, rr.Body.String(), "Unauthorized role")
+	})
+
+	t.Run("missing context values", func(t *testing.T) {
+		req := httptest.NewRequest("GET", "/tasks", nil)
+		rr := httptest.NewRecorder()
+
+		handler.ListTasks(rr, req)
+
+		assert.Equal(t, http.StatusInternalServerError, rr.Code)
+		assert.Contains(t, rr.Body.String(), "Unable to get user ID from context")
+	})
+
+	t.Run("database error", func(t *testing.T) {
+		req := httptest.NewRequest("GET", "/tasks", nil)
+
+		ctx := context.WithValue(req.Context(), middleware.UserIDContextKey, 1)
+		ctx = context.WithValue(ctx, middleware.RoleContextKey, string(models.RoleTechnician))
+		req = req.WithContext(ctx)
+
+		rr := httptest.NewRecorder()
+
+		mock.ExpectQuery("SELECT t.id, t.summary, DATE_FORMAT.*").
+			WithArgs(1).
+			WillReturnError(sql.ErrConnDone)
+
+		handler.ListTasks(rr, req)
+
+		assert.Equal(t, http.StatusInternalServerError, rr.Code)
+		assert.NoError(t, mock.ExpectationsWereMet())
+	})
+
+	t.Run("error parsing date", func(t *testing.T) {
+		req := httptest.NewRequest("GET", "/tasks", nil)
+
+		ctx := context.WithValue(req.Context(), middleware.UserIDContextKey, 1)
+		ctx = context.WithValue(ctx, middleware.RoleContextKey, string(models.RoleTechnician))
+		req = req.WithContext(ctx)
+
+		rr := httptest.NewRecorder()
+
+		// Return an invalid date format
+		rows := sqlmock.NewRows([]string{"id", "summary", "performed_at", "technician_id", "username"}).
+			AddRow("task1", "Task 1 summary", "invalid-date", 1, "tech1")
+
+		mock.ExpectQuery("SELECT t.id, t.summary, DATE_FORMAT.*").
+			WithArgs(1).
+			WillReturnRows(rows)
+
+		handler.ListTasks(rr, req)
+
+		assert.Equal(t, http.StatusInternalServerError, rr.Code)
+		assert.Contains(t, rr.Body.String(), "Error parsing date")
+	})
+}

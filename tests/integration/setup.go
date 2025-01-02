@@ -138,6 +138,7 @@ func setupRouter(db *sql.DB) *mux.Router {
 	router.HandleFunc("/register", authHandler.Register).Methods("POST")
 	router.HandleFunc("/tasks", authMiddleware.AuthMiddleware(taskHandler.CreateTask)).Methods("POST")
 	router.HandleFunc("/tasks/{id}", authMiddleware.AuthMiddleware(taskHandler.UpdateTask)).Methods("PUT")
+	router.HandleFunc("/tasks", authMiddleware.AuthMiddleware(taskHandler.ListTasks)).Methods("GET")
 
 	return router
 }
