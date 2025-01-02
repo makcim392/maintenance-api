@@ -1,0 +1,218 @@
+[
+  {
+    "id": "0e1667ec-e1ad-4210-9055-7c35e935a316",
+    "summary": "Replaced the faulty part on the second device.",
+    "performed_at": "2024-12-29 10:30:00",
+    "technician_id": 1,
+    "created_at": "2024-12-29 20:28:17",
+    "updated_at": "2024-12-29 20:28:17"
+  },
+  {
+    "id": "2182d110-43d6-4d21-8bd4-ad243ca6dec7",
+    "summary": "Replaced the faulty part on the device.",
+    "performed_at": "2024-12-29 10:30:00",
+    "technician_id": 1,
+    "created_at": "2024-12-31 21:13:26",
+    "updated_at": "2024-12-31 21:13:26"
+  },
+  {
+    "id": "2565edbe-8e94-43ff-9b65-b168016f8314",
+    "summary": "Replaced the faulty part on the second device.",
+    "performed_at": "2024-12-29 10:30:00",
+    "technician_id": 1,
+    "created_at": "2024-12-29 19:07:20",
+    "updated_at": "2024-12-29 19:07:20"
+  },
+  {
+    "id": "2e7fbe7c-563f-4764-a66d-3c7ecc2ab7be",
+    "summary": "Replaced the faulty part on the second device.",
+    "performed_at": "2024-12-29 10:30:00",
+    "technician_id": 1,
+    "created_at": "2024-12-29 20:28:18",
+    "updated_at": "2024-12-29 20:28:18"
+  },
+  {
+    "id": "337e7056-206d-4a3e-b64e-b817aee55292",
+    "summary": "Replaced the faulty part on the device.",
+    "performed_at": "2024-12-29 10:30:00",
+    "technician_id": 1,
+    "created_at": "2024-12-29 23:03:40",
+    "updated_at": "2024-12-29 23:03:40"
+  },
+  {
+    "id": "3eaa0b3e-76e6-4a56-8abb-cc76511b52f2",
+    "summary": "Replaced the faulty part on the device.",
+    "performed_at": "2024-12-29 10:30:00",
+    "technician_id": 1,
+    "created_at": "2024-12-31 21:13:25",
+    "updated_at": "2024-12-31 21:13:25"
+  },
+  {
+    "id": "5d4abcd8-d88f-427c-92b8-fcd4dc7e292b",
+    "summary": "Replaced the faulty part on the second device.",
+    "performed_at": "2024-12-29 10:30:00",
+    "technician_id": 1,
+    "created_at": "2024-12-29 20:24:38",
+    "updated_at": "2024-12-29 20:24:38"
+  },
+  {
+    "id": "83acb027-6109-46a8-8e05-023ab741667b",
+    "summary": "Replaced the faulty part on the second device.",
+    "performed_at": "2024-12-29 10:30:00",
+    "technician_id": 1,
+    "created_at": "2024-12-29 19:07:40",
+    "updated_at": "2024-12-29 19:07:40"
+  },
+  {
+    "id": "88eeadf4-c5aa-48a9-9995-e6a7910037b2",
+    "summary": "Replaced the faulty part on the second device.",
+    "performed_at": "2024-12-29 10:30:00",
+    "technician_id": 1,
+    "created_at": "2024-12-29 20:27:58",
+    "updated_at": "2024-12-29 20:27:58"
+  },
+  {
+    "id": "9cc9ef66-9a14-4b52-90b2-c2468a2dd67c",
+    "summary": "Replaced the faulty part on the second device.",
+    "performed_at": "2024-12-29 10:30:00",
+    "technician_id": 1,
+    "created_at": "2024-12-29 20:25:57",
+    "updated_at": "2024-12-29 20:25:57"
+  },
+  {
+    "id": "a1c50d26-d9f6-460f-b070-df8c4237219d",
+    "summary": "Replaced the faulty part on the device.",
+    "performed_at": "2024-12-29 10:30:00",
+    "technician_id": 1,
+    "created_at": "2024-12-29 23:03:38",
+    "updated_at": "2024-12-29 23:03:38"
+  },
+  {
+    "id": "a6eb3aab-1c53-4a67-a6e9-b86dd2161a65",
+    "summary": "Replaced the faulty part on the second device.",
+    "performed_at": "2024-12-29 10:30:00",
+    "technician_id": 1,
+    "created_at": "2024-12-29 20:21:29",
+    "updated_at": "2024-12-29 20:21:29"
+  },
+  {
+    "id": "a880702b-af6f-4b3d-a1a8-0cd01d691e00",
+    "summary": "Replaced the faulty part on the second device.",
+    "performed_at": "2024-12-29 10:30:00",
+    "technician_id": 1,
+    "created_at": "2024-12-29 19:07:19",
+    "updated_at": "2024-12-29 19:07:19"
+  },
+  {
+    "id": "accc5659-d9da-46bb-88af-5badf3be1d75",
+    "summary": "Replaced the faulty part on the second device.",
+    "performed_at": "2024-12-29 10:30:00",
+    "technician_id": 1,
+    "created_at": "2024-12-29 20:24:41",
+    "updated_at": "2024-12-29 20:24:41"
+  },
+  {
+    "id": "b3d298f6-609a-4b5e-be6b-8d3daea82ccd",
+    "summary": "Replaced the faulty part on the device.",
+    "performed_at": "2024-12-29 10:30:00",
+    "technician_id": 1,
+    "created_at": "2024-12-31 20:22:48",
+    "updated_at": "2024-12-31 20:22:48"
+  },
+  {
+    "id": "b6db240f-1d21-4a08-80ca-28ca9fad45cb",
+    "summary": "Replaced the faulty part on the device.",
+    "performed_at": "2024-12-29 10:30:00",
+    "technician_id": 1,
+    "created_at": "2025-01-01 14:45:12",
+    "updated_at": "2025-01-01 14:45:12"
+  },
+  {
+    "id": "b8cf46c0-f041-44e0-a0b8-f4bdb0d1ae8a",
+    "summary": "Replaced the faulty part on the second device.",
+    "performed_at": "2024-12-29 10:30:00",
+    "technician_id": 1,
+    "created_at": "2024-12-29 19:07:41",
+    "updated_at": "2024-12-29 19:07:41"
+  },
+  {
+    "id": "be1ddcd4-7dc4-409a-9fb1-19c332de6fb5",
+    "summary": "Replaced the faulty part on the second device.",
+    "performed_at": "2024-12-29 10:30:00",
+    "technician_id": 1,
+    "created_at": "2024-12-29 19:05:30",
+    "updated_at": "2024-12-29 19:05:30"
+  },
+  {
+    "id": "bfcbf772-4f36-4f5c-a1b6-b469d88ef921",
+    "summary": "Replaced the faulty part on the device.",
+    "performed_at": "2024-12-29 10:30:00",
+    "technician_id": 1,
+    "created_at": "2024-12-29 23:03:42",
+    "updated_at": "2024-12-29 23:03:42"
+  },
+  {
+    "id": "c50e857d-99fc-4c5b-8c3d-5922004c9478",
+    "summary": "Replaced the faulty part on the device.",
+    "performed_at": "2024-12-29 10:30:00",
+    "technician_id": 1,
+    "created_at": "2024-12-31 19:57:54",
+    "updated_at": "2024-12-31 19:57:54"
+  },
+  {
+    "id": "c512ef2b-43e9-4516-8650-171098eb9bd0",
+    "summary": "Replaced the faulty part on the device.",
+    "performed_at": "2024-12-29 10:30:00",
+    "technician_id": 1,
+    "created_at": "2024-12-29 23:03:40",
+    "updated_at": "2024-12-29 23:03:40"
+  },
+  {
+    "id": "c810fb8d-ae98-42f8-b28e-b29f4ea24e9b",
+    "summary": "Replaced the faulty part on the device.",
+    "performed_at": "2024-12-29 10:30:00",
+    "technician_id": 2,
+    "created_at": "2025-01-01 23:44:06",
+    "updated_at": "2025-01-01 23:44:06"
+  },
+  {
+    "id": "cbe97ff7-0ae6-4317-a06b-560991833ed3",
+    "summary": "Replaced the faulty part on the device.",
+    "performed_at": "2024-12-29 10:30:00",
+    "technician_id": 2,
+    "created_at": "2025-01-01 23:44:03",
+    "updated_at": "2025-01-01 23:44:03"
+  },
+  {
+    "id": "d17326c5-6ac7-4d9e-8416-c7145b86aedf",
+    "summary": "Replaced the faulty part on the device.",
+    "performed_at": "2024-12-29 10:30:00",
+    "technician_id": 1,
+    "created_at": "2024-12-29 23:03:41",
+    "updated_at": "2024-12-29 23:03:41"
+  },
+  {
+    "id": "dbf04efa-456c-484d-94a8-9478e211d2dd",
+    "summary": "Replaced the faulty part on the device.",
+    "performed_at": "2024-12-29 10:30:00",
+    "technician_id": 1,
+    "created_at": "2024-12-31 20:03:04",
+    "updated_at": "2024-12-31 20:03:04"
+  },
+  {
+    "id": "ebfef5d4-e09e-4edb-b9bc-85da89d3a23f",
+    "summary": "Replaced the faulty part on the device.",
+    "performed_at": "2024-12-29 10:30:00",
+    "technician_id": 1,
+    "created_at": "2024-12-31 21:13:23",
+    "updated_at": "2024-12-31 21:13:23"
+  },
+  {
+    "id": "f9afe1fe-0321-462d-899e-dbc86d1795ec",
+    "summary": "Replaced the faulty part on the device.",
+    "performed_at": "2024-12-29 10:30:00",
+    "technician_id": 1,
+    "created_at": "2025-01-01 14:11:53",
+    "updated_at": "2025-01-01 14:11:53"
+  }
+]

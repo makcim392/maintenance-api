@@ -8,7 +8,33 @@
 
 In order to build the image, and considering docker build is getting deprecated, we can use:
 
-`docker buildx build --load -t sword_app:v1 . `
+```bash
+docker buildx build --load -t sword_app:v1 . 
+```
+
+# Getting Started
+
+### Pre-loaded Data
+The application comes with pre-loaded data for testing purposes:
+
+Users:
+- `manager1` (Manager role)
+- `john_tech` (Technician role)
+- `sarah_manager` (Manager role)
+- `makcim` (Technician role)
+
+Several maintenance tasks are also pre-loaded into the database to demonstrate the application's functionality.
+
+### API Documentation
+A Postman collection is included in the `docs/postman` directory. To use it:
+
+1. Import the collection into Postman
+2. The collection includes requests for all available endpoints
+3. Environment variables are set up for both local and development environments
+4. Test credentials are included in the collection for both manager and technician roles
+
+> Note: The pre-loaded data and Postman collection are intended for development and testing purposes only. 
+> In a production environment, you should remove the test data and use secure credentials.
 
 # Database access
 
