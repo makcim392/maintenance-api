@@ -263,3 +263,59 @@ func (h *TaskHandler) ListTasks(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Error encoding tasks: %v", err)
 	}
 }
+
+func (h *TaskHandler) DeleteTask(w http.ResponseWriter, r *http.Request) {
+	// Get user role from context
+	role, ok := r.Context().Value(middleware.RoleContextKey).(string)
+	if !ok {
+		http.Error(w, "Unable to get role from context", http.StatusInternalServerError)
+		return
+	}
+
+	// Only managers can delete tasks
+	if role != string(models.RoleManager) {
+		http.Error(w, "Unauthorized to delete tasks", http.StatusForbidden)
+		return
+	}
+
+	// Get task ID from URL
+	vars := mux.Vars(r)
+	taskID := vars["id"]
+
+	// Check if task exists before deleting
+	var exists bool
+	err := h.db.QueryRow("SELECT EXISTS(SELECT 1 FROM tasks WHERE id = ?)", taskID).Scan(&exists)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if !exists {
+		http.Error(w, "Task not found", http.StatusNotFound)
+		return
+	}
+
+	// Delete the task
+	query := "DELETE FROM tasks WHERE id = ?"
+	result, err := h.db.Exec(query, taskID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if rowsAffected == 0 {
+		http.Error(w, "Task not found", http.StatusNotFound)
+		return
+	}
+
+	// Return success response
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": "Task deleted successfully",
+		"id":      taskID,
+	})
+}

@@ -84,6 +84,7 @@ func main() {
 	router.HandleFunc("/tasks", authMiddleware.AuthMiddleware(taskHandler.CreateTask)).Methods("POST")
 	router.HandleFunc("/tasks/{id}", authMiddleware.AuthMiddleware(taskHandler.UpdateTask)).Methods("PUT")
 	router.HandleFunc("/tasks", authMiddleware.AuthMiddleware(taskHandler.ListTasks)).Methods("GET")
+	router.HandleFunc("/tasks/{id}", authMiddleware.AuthMiddleware(taskHandler.DeleteTask)).Methods("DELETE")
 
 	router.HandleFunc("/test", handlers.TestHandler).Methods("GET")
 
