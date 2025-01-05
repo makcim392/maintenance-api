@@ -1,6 +1,6 @@
-.PHONY: all build run test clean fmt lint tidy test-cover test-cover-html
+.PHONY: all build run test clean fmt lint tidy test-cover test-cover-html test-integration test-all wait-for-containers
 
-# Default target
+# Default target (excluding integration tests)
 all: clean fmt lint test build
 
 # Build the application
@@ -11,13 +11,42 @@ build:
 run:
 	go run ./...
 
-# Run tests
+# Run only unit tests (excluding integration tests)
 test:
-	go test -v -cover ./...
+	go test -v -cover $$(go list ./... | grep -v /tests)
 
-# Run tests with coverage and generate HTML report
+# Wait for containers to be healthy
+wait-for-containers:
+	@echo "Waiting for containers to be healthy..."
+	@for i in $$(seq 1 30); do \
+		if docker-compose -f tests/docker-compose.test.yml ps | grep -q "healthy"; then \
+			echo "Containers are healthy!"; \
+			exit 0; \
+		fi; \
+		echo "Waiting for containers to be ready... ($$i/30)"; \
+		sleep 2; \
+	done; \
+	echo "Container health check timed out"; \
+	docker-compose -f tests/docker-compose.test.yml logs; \
+	exit 1
+
+# Run integration tests (requires containers)
+test-integration:
+	docker-compose -f tests/docker-compose.test.yml up -d
+	$(MAKE) wait-for-containers
+	go test -v ./tests/...
+	docker-compose -f tests/docker-compose.test.yml down
+
+# Run all tests (unit + integration)
+test-all: test
+	docker-compose -f tests/docker-compose.test.yml up -d
+	$(MAKE) wait-for-containers
+	go test -v ./tests/...
+	docker-compose -f tests/docker-compose.test.yml down
+
+# Run tests with coverage (excluding integration tests)
 test-cover:
-	go test -coverprofile=coverage.out $$(go list ./... | grep -v /cmd/api)
+	go test -coverprofile=coverage.out $$(go list ./... | grep -v /tests | grep -v /cmd/api)
 	@echo "Total Coverage:"
 	@go tool cover -func=coverage.out | grep total | awk '{print $$3}'
 

@@ -148,21 +148,11 @@ A Makefile is provided to simplify common tasks, included linting and running te
 
 # Tests
 
-## Integration
+The app has 2 types of tests:
 
-### Running
-
-In order to run containerized integration tests, you can use the following command:
-
-```bash
-docker-compose -f tests/docker-compose.test.yml up -d
-```
-
-and then run the tests with:
-
-```bash
-go test ./tests/integration/... -v 
-```
+- Unit tests: These tests are located in the `internal` directory and test individual functions and methods.
+- Integration tests: These tests are located in the `tests` directory and test the application as a whole, 
+- including the database and HTTP endpoints.
 
 ### Removing integration containers
 
