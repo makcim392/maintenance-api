@@ -8,6 +8,10 @@ import (
 	"os"
 
 	"github.com/makcim392/maintenance-api/internal/auth"
+	"github.com/makcim392/maintenance-api/internal/health"
+	"github.com/makcim392/maintenance-api/internal/logger"
+	"github.com/makcim392/maintenance-api/internal/metrics"
+	"github.com/makcim392/maintenance-api/internal/server"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
@@ -66,12 +70,20 @@ func main() {
 		log.Fatalf("Error pinging database: %v", err)
 	}
 
+	// Initialize logger
+	appLogger := logger.New()
+
 	// Create router
 	router := mux.NewRouter()
+
+	// Add middleware
+	router.Use(middleware.LoggingMiddleware(appLogger))
+	router.Use(metrics.MetricsMiddleware)
 
 	// Initialize handlers
 	taskHandler := handlers.NewTaskHandler(db)
 	authHandler := handlers.NewAuthHandler(db)
+	healthChecker := health.New(db, appLogger)
 
 	validator := &auth.JWTValidator{}
 	authMiddleware := middleware.NewAuthMiddlewareHandler(validator)
@@ -87,6 +99,14 @@ func main() {
 	router.HandleFunc("/tasks/{id}", authMiddleware.AuthMiddleware(taskHandler.DeleteTask)).Methods("DELETE")
 
 	router.HandleFunc("/test", handlers.TestHandler).Methods("GET")
+	
+	// Health check endpoints
+	router.HandleFunc("/health", healthChecker.HealthHandler).Methods("GET")
+	router.HandleFunc("/health/ready", healthChecker.ReadinessHandler).Methods("GET")
+	router.HandleFunc("/health/live", healthChecker.LivenessHandler).Methods("GET")
+	
+	// Add metrics endpoint
+	router.Handle("/metrics", metrics.MetricsHandler()).Methods("GET")
 
 	// Get server port from environment variables
 	port := os.Getenv("APP_PORT_HOST")
@@ -94,7 +114,7 @@ func main() {
 		port = "8080" // Default to 8080 if not set
 	}
 
-	// Start server
-	log.Printf("Server starting on port %v", port)
-	log.Fatal(http.ListenAndServe(":"+port, router))
+	// Create and start server with graceful shutdown
+	srv := server.New(":"+port, router, appLogger, healthChecker)
+	appLogger.LogError(srv.Start(), "Server failed to start")
 }

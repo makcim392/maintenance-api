@@ -1,0 +1,112 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: maintenance-api-slo
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: maintenance-api
+    app.kubernetes.io/component: monitoring
+spec:
+  groups:
+  - name: maintenance-api.slo
+    interval: 30s
+    rules:
+    # Availability SLO: 99.9% uptime
+    - record: maintenance_api:availability_slo
+      expr: 0.999
+    
+    - record: maintenance_api:availability
+      expr: |
+        (
+          rate(http_requests_total{job="maintenance-api",code!~"5.."}[5m])
+          /
+          rate(http_requests_total{job="maintenance-api"}[5m])
+        )
+    
+    - alert: MaintenanceApiAvailabilitySlo
+      expr: maintenance_api:availability < 0.999
+      for: 5m
+      labels:
+        severity: warning
+        service: maintenance-api
+        slo: availability
+      annotations:
+        summary: "Maintenance API availability below SLO"
+        description: "Availability is {{ $value | humanizePercentage }} which is below the 99.9% SLO"
+    
+    # Latency SLO: 95th percentile < 500ms
+    - record: maintenance_api:latency_slo
+      expr: 0.5
+    
+    - record: maintenance_api:latency_p95
+      expr: |
+        histogram_quantile(0.95,
+          rate(http_request_duration_seconds_bucket{job="maintenance-api"}[5m])
+        )
+    
+    - alert: MaintenanceApiLatencySlo
+      expr: maintenance_api:latency_p95 > 0.5
+      for: 5m
+      labels:
+        severity: warning
+        service: maintenance-api
+        slo: latency
+      annotations:
+        summary: "Maintenance API latency above SLO"
+        description: "95th percentile latency is {{ $value }}s which is above the 500ms SLO"
+    
+    # Error rate SLO: < 1% errors
+    - record: maintenance_api:error_rate_slo
+      expr: 0.01
+    
+    - record: maintenance_api:error_rate
+      expr: |
+        rate(http_requests_total{job="maintenance-api",code=~"5.."}[5m])
+        /
+        rate(http_requests_total{job="maintenance-api"}[5m])
+    
+    - alert: MaintenanceApiErrorRateSlo
+      expr: maintenance_api:error_rate > 0.01
+      for: 5m
+      labels:
+        severity: warning
+        service: maintenance-api
+        slo: error-rate
+      annotations:
+        summary: "Maintenance API error rate above SLO"
+        description: "Error rate is {{ $value | humanizePercentage }} which is above the 1% SLO"
+    
+    # Database connection health
+    - alert: MaintenanceApiDatabaseConnection
+      expr: up{job="maintenance-api"} == 0
+      for: 1m
+      labels:
+        severity: critical
+        service: maintenance-api
+      annotations:
+        summary: "Maintenance API database connection failed"
+        description: "Maintenance API has been down for more than 1 minute"
+    
+    # High memory usage
+    - alert: MaintenanceApiHighMemoryUsage
+      expr: |
+        (process_resident_memory_bytes{job="maintenance-api"} / 1024 / 1024) > 200
+      for: 5m
+      labels:
+        severity: warning
+        service: maintenance-api
+      annotations:
+        summary: "High memory usage in Maintenance API"
+        description: "Memory usage is {{ $value }}MB which is above the 200MB threshold"
+    
+    # High CPU usage
+    - alert: MaintenanceApiHighCPUUsage
+      expr: |
+        rate(process_cpu_seconds_total{job="maintenance-api"}[5m]) * 100 > 80
+      for: 5m
+      labels:
+        severity: warning
+        service: maintenance-api
+      annotations:
+        summary: "High CPU usage in Maintenance API"
+        description: "CPU usage is {{ $value }}% which is above the 80% threshold"

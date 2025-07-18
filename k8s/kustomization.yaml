@@ -1,0 +1,25 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: maintenance-api
+  namespace: maintenance-api
+
+resources:
+  - namespace.yaml
+  - configmap.yaml
+  - secret.yaml
+  - mysql-init-configmap.yaml
+  - mysql-deployment.yaml
+  - app-deployment.yaml
+
+commonLabels:
+  app.kubernetes.io/name: maintenance-api
+  app.kubernetes.io/version: "1.0.0"
+  app.kubernetes.io/managed-by: kustomize
+
+images:
+  - name: ghcr.io/makcim392/maintenance-api
+    newTag: latest
+
+namespace: maintenance-api

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "maintenance-api.fullname" . }}-config
+  labels:
+    {{- include "maintenance-api.labels" . | nindent 4 }}
+data:
+  APP_PORT_HOST: "8080"
+  DB_HOST: {{ .Values.database.host | quote }}
+  DB_NAME: {{ .Values.database.name | quote }}
+  DB_USER: {{ .Values.database.user | quote }}
+  MYSQL_PORT_CONTAINER: {{ .Values.database.port | quote }}
+  LOG_LEVEL: {{ .Values.config.logLevel | quote }}
+  METRICS_ENABLED: {{ .Values.config.metricsEnabled | quote }}

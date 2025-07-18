@@ -1,0 +1,128 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: maintenance-api
+  namespace: maintenance-api
+  labels:
+    app.kubernetes.io/name: maintenance-api
+    app.kubernetes.io/component: api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: maintenance-api
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: maintenance-api
+        app.kubernetes.io/component: api
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+      - name: maintenance-api
+        image: ghcr.io/makcim392/maintenance-api:latest
+        ports:
+        - containerPort: 8080
+          name: http
+        env:
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: maintenance-api-config
+              key: DB_HOST
+        - name: DB_USER
+          valueFrom:
+            configMapKeyRef:
+              name: maintenance-api-config
+              key: DB_USER
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: maintenance-api-secrets
+              key: DB_PASSWORD
+        - name: DB_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: maintenance-api-config
+              key: DB_NAME
+        - name: APP_PORT_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: maintenance-api-config
+              key: APP_PORT_HOST
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: maintenance-api-secrets
+              key: JWT_SECRET
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        livenessProbe:
+          httpGet:
+            path: /health/live
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        startupProbe:
+          httpGet:
+            path: /health/ready
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 30
+      imagePullSecrets:
+      - name: ghcr-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: maintenance-api
+  namespace: maintenance-api
+  labels:
+    app.kubernetes.io/name: maintenance-api
+    app.kubernetes.io/component: api
+spec:
+  selector:
+    app.kubernetes.io/name: maintenance-api
+  ports:
+  - port: 80
+    targetPort: 8080
+    name: http
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: maintenance-api-nodeport
+  namespace: maintenance-api
+  labels:
+    app.kubernetes.io/name: maintenance-api
+    app.kubernetes.io/component: api
+spec:
+  selector:
+    app.kubernetes.io/name: maintenance-api
+  ports:
+  - port: 80
+    targetPort: 8080
+    nodePort: 30080
+    name: http
+  type: NodePort
