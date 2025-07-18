@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/makcim392/swordhealth-interviewer/internal/auth"
+	"github.com/makcim392/maintenance-api/internal/auth"
 	"github.com/stretchr/testify/assert"
 )
 

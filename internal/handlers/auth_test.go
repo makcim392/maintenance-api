@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/makcim392/swordhealth-interviewer/internal/models"
+	"github.com/makcim392/maintenance-api/internal/models"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/crypto/bcrypt"
 )

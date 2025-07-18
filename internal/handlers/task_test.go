@@ -12,8 +12,8 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/gorilla/mux"
-	"github.com/makcim392/swordhealth-interviewer/internal/middleware"
-	"github.com/makcim392/swordhealth-interviewer/internal/models"
+	"github.com/makcim392/maintenance-api/internal/middleware"
+	"github.com/makcim392/maintenance-api/internal/models"
 	"github.com/stretchr/testify/assert"
 )
 

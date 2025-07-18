@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/makcim392/swordhealth-interviewer/internal/auth"
+	"github.com/makcim392/maintenance-api/internal/auth"
 )
 
 const (

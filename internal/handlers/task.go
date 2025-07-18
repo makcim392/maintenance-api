@@ -9,10 +9,10 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/makcim392/swordhealth-interviewer/internal/middleware"
+	"github.com/makcim392/maintenance-api/internal/middleware"
 
 	"github.com/google/uuid"
-	"github.com/makcim392/swordhealth-interviewer/internal/models"
+	"github.com/makcim392/maintenance-api/internal/models"
 )
 
 type TaskHandler struct {

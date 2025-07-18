@@ -6,8 +6,8 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/makcim392/swordhealth-interviewer/internal/auth"
-	"github.com/makcim392/swordhealth-interviewer/internal/models"
+	"github.com/makcim392/maintenance-api/internal/auth"
+	"github.com/makcim392/maintenance-api/internal/models"
 	"golang.org/x/crypto/bcrypt"
 )
 

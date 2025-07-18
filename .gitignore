@@ -12,43 +12,28 @@
 *.out
 
 # Dependency directories (remove the comment below to include it)
-vendor/
+# vendor/
 
 # Go workspace file
 go.work
 
-# IDE specific files
-.idea/
+# Environment variables
+.env
+
+# IDE files
 .vscode/
+.idea/
 *.swp
 *.swo
 
-# Environment files
-.env
-.env.local
-.env.*.local
-
-# OS generated files
+# OS files
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
 
-# Logs
-*.log
+# Local development files
+coverage.html
+coverage.out
 
-# Docker volumes
-docker/data/
-
-# Binary
-main
-app
-
-# Other
-.pre-commit-config.yaml
-setup_ssh.sh
-
-.envrc
+# Local documentation (keep these files locally, don't commit)
+IMPROVEMENT_PLAN.md
+IMPROVEMENT_SUMMARY.md

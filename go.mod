@@ -1,4 +1,4 @@
-module github.com/makcim392/swordhealth-interviewer
+module github.com/makcim392/maintenance-api
 
 go 1.22
 

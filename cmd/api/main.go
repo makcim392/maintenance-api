@@ -7,13 +7,13 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/makcim392/swordhealth-interviewer/internal/auth"
+	"github.com/makcim392/maintenance-api/internal/auth"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
-	"github.com/makcim392/swordhealth-interviewer/internal/handlers"
-	"github.com/makcim392/swordhealth-interviewer/internal/middleware"
+	"github.com/makcim392/maintenance-api/internal/handlers"
+	"github.com/makcim392/maintenance-api/internal/middleware"
 )
 
 func main() {
